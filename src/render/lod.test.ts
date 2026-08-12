@@ -69,4 +69,40 @@ describe('LodController', () => {
     expect(lod.currentLevel).toBe(2);
     expect(targets.state.tube).toBe(true);
   });
+
+  it('keeps a forced level across later updates', () => {
+    lod.force(0);
+    for (let i = 0; i < 100; i++) lod.update(1_000, 20, 200_000, 12);
+    expect(lod.currentLevel).toBe(0);
+    expect(targets.state.sideChains).toBe(true);
+  });
+
+  it('lets a forced level override an engaged governor', () => {
+    for (let i = 0; i < 400; i++) lod.update(40, 20, 2_000, 40);
+    expect(lod.governorEngaged).toBe(true);
+
+    lod.force(0);
+    for (let i = 0; i < 400; i++) lod.update(40, 20, 2_000, 40);
+    expect(lod.currentLevel).toBe(0);
+    expect(targets.state.sideChains).toBe(true);
+  });
+
+  it('returns to automatic selection when the force is cleared', () => {
+    lod.force(0);
+    lod.update(1_000, 20, 2_000, 12);
+    expect(lod.currentLevel).toBe(0);
+
+    lod.force(null);
+    expect(lod.update(1_000, 20, 2_000, 12)).toBe(2);
+    expect(targets.state.tube).toBe(true);
+  });
+
+  it('re-applies the current level onto freshly built objects', () => {
+    lod.force(2);
+    targets.state.sideChains = true;
+    targets.state.tube = false;
+    lod.reapply();
+    expect(targets.state.sideChains).toBe(false);
+    expect(targets.state.tube).toBe(true);
+  });
 });

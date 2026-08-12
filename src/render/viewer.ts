@@ -139,7 +139,7 @@ export class Viewer {
   }
 
   forceDetail(level: DetailLevel | 'auto'): void {
-    if (level !== 'auto') this.lod.force(level);
+    this.lod.force(level === 'auto' ? null : level);
   }
 
   setOverlayVisible(visible: boolean): void {
@@ -159,6 +159,9 @@ export class Viewer {
     if (docking) this.buildDockingScene(structure, docking);
     else this.buildExploreScene(structure);
 
+    // Freshly built objects default to visible, so the current level has to be
+    // pushed onto them or the HUD label disagrees with what is drawn.
+    this.lod.reapply();
     this.frameCamera(sphere.radius);
     this.scoreDirty = docking !== null;
   }

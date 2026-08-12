@@ -46,6 +46,7 @@ export class LodController {
   private comfortableFrames = 0;
   private governorFloor: DetailLevel = 0;
   private frameTimeEma = 16;
+  private forced: DetailLevel | null = null;
 
   constructor(
     private readonly targets: LodTargets,
@@ -102,7 +103,11 @@ export class LodController {
     else if (coverage < 0.2) distanceLevel = 1;
 
     const loadLevel: DetailLevel = atomCount > this.policy.sideChainAtomBudget ? 1 : 0;
-    const level = Math.max(distanceLevel, loadLevel, this.governorFloor) as DetailLevel;
+    // An explicit user choice outranks every automatic input, including the
+    // governor: otherwise the selector appears dead and a throttled session can
+    // never get detail back.
+    const level =
+      this.forced ?? (Math.max(distanceLevel, loadLevel, this.governorFloor) as DetailLevel);
 
     if (level !== this.level) {
       this.level = level;
@@ -111,10 +116,17 @@ export class LodController {
     return level;
   }
 
-  /** Forces a level, disabling automatic selection until `update` runs again. */
-  force(level: DetailLevel): void {
+  /** Pins a level, or pass `null` to hand control back to automatic selection. */
+  force(level: DetailLevel | null): void {
+    this.forced = level;
+    if (level === null) return;
     this.level = level;
     this.apply(level);
+  }
+
+  /** Re-applies the current level, e.g. after representations are rebuilt. */
+  reapply(): void {
+    this.apply(this.level);
   }
 
   private apply(level: DetailLevel): void {

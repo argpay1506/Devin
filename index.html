@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>BioAR — Molecular Explorer (web prototype)</title>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <header id="titlebar">
+      <span class="brand">BioAR</span>
+      <span class="subtitle">Molecular Explorer — web prototype of the AR rendering core</span>
+    </header>
+
+    <aside id="panel">
+      <section>
+        <h2>Structure</h2>
+        <div class="row">
+          <input id="pdb-input" type="text" maxlength="4" placeholder="PDB ID (e.g. 6M0J)" />
+          <button id="pdb-load" type="button">Load</button>
+        </div>
+        <p id="status" class="status"></p>
+        <label class="field">
+          <span>Bundled (works offline)</span>
+          <select id="bundled-select"></select>
+        </label>
+        <label class="field">
+          <span>Fetch from RCSB</span>
+          <select id="remote-select"></select>
+        </label>
+        <p id="blurb" class="blurb"></p>
+      </section>
+
+      <section>
+        <h2>Representation</h2>
+        <label class="field">
+          <span>Colour by</span>
+          <select id="coloring-select">
+            <option value="secondaryStructure">Secondary structure</option>
+            <option value="chain">Chain</option>
+            <option value="element">Element</option>
+            <option value="bFactor">B-factor / pLDDT</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Detail</span>
+          <select id="detail-select">
+            <option value="auto">Auto (LOD + governor)</option>
+            <option value="0">Full</option>
+            <option value="1">Medium</option>
+            <option value="2">Low</option>
+          </select>
+        </label>
+        <label class="check">
+          <input id="rotate-toggle" type="checkbox" />
+          <span>Auto-rotate</span>
+        </label>
+      </section>
+
+      <section id="docking-section">
+        <h2>Docking sandbox</h2>
+        <div class="row">
+          <label class="field compact">
+            <span>Fixed chain</span>
+            <select id="chain-a"></select>
+          </label>
+          <label class="field compact">
+            <span>Mobile chain</span>
+            <select id="chain-b"></select>
+          </label>
+        </div>
+        <label class="check">
+          <input id="dock-toggle" type="checkbox" />
+          <span>Enable docking mode</span>
+        </label>
+        <label class="field">
+          <span>Separation <output id="separation-value">0.0 Å</output></span>
+          <input id="separation" type="range" min="-4" max="30" step="0.25" value="0" />
+        </label>
+        <div id="score-readout" class="score">
+          <p class="hint">Enable docking mode on a multi-chain structure to score the interface.</p>
+        </div>
+        <p class="caveat">
+          Relative empirical score in arbitrary units, for comparing poses of the same
+          complex. It is <strong>not</strong> a binding free energy and not a predicted affinity.
+        </p>
+      </section>
+    </aside>
+
+    <div id="hud"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
